@@ -1,4 +1,4 @@
-ASP.NET Core REST-Api Workshop
+API-Dokumentation mit OpenAPI/Swagger für ASP.NET Core 5 Workshop
 =======
 
 # Entity Framework Tools installieren
@@ -9,4 +9,4 @@ ASP.NET Core REST-Api Workshop
 
 ## Copyright and License
 
-Copyright 2020 Gregor Biswanger.
+Copyright 2021 Gregor Biswanger.
