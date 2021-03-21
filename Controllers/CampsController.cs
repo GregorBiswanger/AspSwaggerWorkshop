@@ -25,6 +25,11 @@ namespace AspRestApiWorkshop.Controllers
             _linkGenerator = linkGenerator;
         }
 
+        /// <summary>
+        /// List all conferences.
+        /// </summary>
+        /// <param name="includeTalks">Talks should also be displayed.</param>
+        /// <returns>All available conferences from our database.</returns>
         [HttpGet]
         public async Task<ActionResult<CampModel[]>> GetCamps(bool includeTalks = false)
         {
@@ -41,6 +46,15 @@ namespace AspRestApiWorkshop.Controllers
             }
         }
 
+        /// <summary>
+        /// Show a specific conference.
+        /// </summary>
+        /// <param name="moniker">Conference abbreviation.</param>
+        /// <returns>Available conference from our database.</returns>
+        /// <remarks>
+        /// Sample request (this request list an specific conference.) \
+        /// GET /api/camps/DWX2020
+        /// </remarks>
         [HttpGet("{moniker}")]
         public async Task<ActionResult<CampModel>> GetCamp(string moniker)
         {
