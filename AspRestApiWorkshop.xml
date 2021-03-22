@@ -17,6 +17,7 @@
             </summary>
             <param name="moniker">Conference abbreviation.</param>
             <returns>Available conference from our database.</returns>
+            <response code="200">Returns the requested conference.</response>
             <remarks>
             Sample request (this request list an specific conference.) \
             GET /api/camps/DWX2020

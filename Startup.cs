@@ -1,6 +1,8 @@
 using CoreCodeCamp.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,6 +12,7 @@ using System;
 using System.IO;
 using System.Reflection;
 
+[assembly: ApiConventionType(typeof(DefaultApiConventions))]
 namespace AspRestApiWorkshop
 {
     public class Startup
@@ -28,8 +31,13 @@ namespace AspRestApiWorkshop
 
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-            services.AddControllers()
-                .AddXmlDataContractSerializerFormatters();
+            services.AddControllers(configuration => 
+            {
+                //configuration.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status400BadRequest));
+                //configuration.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
+                //configuration.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status500InternalServerError));
+                //configuration.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status415UnsupportedMediaType));
+            }).AddXmlDataContractSerializerFormatters();
 
             services.AddSwaggerGen(setupAction =>
             {

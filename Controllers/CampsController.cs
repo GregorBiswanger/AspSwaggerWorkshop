@@ -12,6 +12,7 @@ namespace AspRestApiWorkshop.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [ApiConventionType(typeof(CustomConventions))]
     public class CampsController : ControllerBase
     {
         private readonly ICampRepository _campRepository;
@@ -40,7 +41,7 @@ namespace AspRestApiWorkshop.Controllers
 
                 return campModels.Select(camp => CreateLinksForCamp(camp)).ToArray();
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database failure");
             }
@@ -51,6 +52,7 @@ namespace AspRestApiWorkshop.Controllers
         /// </summary>
         /// <param name="moniker">Conference abbreviation.</param>
         /// <returns>Available conference from our database.</returns>
+        /// <response code="200">Returns the requested conference.</response>
         /// <remarks>
         /// Sample request (this request list an specific conference.) \
         /// GET /api/camps/DWX2020
@@ -96,7 +98,8 @@ namespace AspRestApiWorkshop.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CampModel>> Post(CampModel campModel)
+        //[ApiConventionMethod(typeof(CustomConventions), nameof(CustomConventions.Insert))]
+        public async Task<ActionResult<CampModel>> Insert(CampModel campModel)
         {
             try
             {
@@ -121,7 +124,7 @@ namespace AspRestApiWorkshop.Controllers
                     return Created(location, _mapper.Map<CampModel>(camp));
                 }
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database failure");
             }
@@ -147,7 +150,7 @@ namespace AspRestApiWorkshop.Controllers
                     return _mapper.Map<CampModel>(oldCamp);
                 }
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database failure");
             }
@@ -173,7 +176,7 @@ namespace AspRestApiWorkshop.Controllers
                     return Ok();
                 }
             }
-            catch (Exception exception)
+            catch (Exception)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, "Database failure");
             }
@@ -224,3 +227,8 @@ namespace AspRestApiWorkshop.Controllers
         }
     }
 }
+
+
+
+
+
