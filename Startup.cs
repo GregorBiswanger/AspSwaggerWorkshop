@@ -1,15 +1,18 @@
+using AspRestApiWorkshop.OperationFilters;
 using CoreCodeCamp.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 [assembly: ApiConventionType(typeof(DefaultApiConventions))]
@@ -33,10 +36,9 @@ namespace AspRestApiWorkshop
 
             services.AddControllers(configuration => 
             {
-                //configuration.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status400BadRequest));
-                //configuration.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status406NotAcceptable));
-                //configuration.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status500InternalServerError));
-                //configuration.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status415UnsupportedMediaType));
+                var jsonFormatter = configuration.OutputFormatters.OfType<SystemTextJsonOutputFormatter>().FirstOrDefault();
+                jsonFormatter.SupportedMediaTypes.Add("application/vnd.marvin.hateoas+json");
+
             }).AddXmlDataContractSerializerFormatters();
 
             services.AddSwaggerGen(setupAction =>
@@ -58,6 +60,9 @@ namespace AspRestApiWorkshop
                         Url = new Uri("https://opensource.org/licenses/MIT")
                     }
                 });
+
+                setupAction.OperationFilter<GetCampOperationFilter>();
+                setupAction.OperationFilter<CreateCampOperationFilter>();
 
                 var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);

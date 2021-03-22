@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AspRestApiWorkshop.ActionConstraints;
 using AspRestApiWorkshop.Models;
 using AutoMapper;
 using CoreCodeCamp.Data;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Net.Http.Headers;
 
 namespace AspRestApiWorkshop.Controllers
 {
@@ -58,7 +60,51 @@ namespace AspRestApiWorkshop.Controllers
         /// GET /api/camps/DWX2020
         /// </remarks>
         [HttpGet("{moniker}")]
-        public async Task<ActionResult<CampModel>> GetCamp(string moniker)
+        [Produces("application/json", "application/vnd.marvin.hateoas+json")]
+        public async Task<ActionResult<CampModel>> GetCamp(string moniker, [FromHeader(Name = "Accept")] string mediaType)
+        {
+            try
+            {
+                if(!MediaTypeHeaderValue.TryParse(mediaType, out MediaTypeHeaderValue parsedMediaType))
+                {
+                    return BadRequest("Wrong media-type");
+                }
+
+                var result = await _campRepository.GetCampAsync(moniker);
+
+                if (result == null)
+                {
+                    return NotFound();
+                }
+
+                if(parsedMediaType.MediaType == "application/vnd.marvin.hateoas+json")
+                {
+                    return CreateLinksForCamp(_mapper.Map<CampModel>(result));
+                }
+
+                return _mapper.Map<CampModel>(result);
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database failure");
+            }
+        }
+
+        /// <summary>
+        /// Show a specific conference.
+        /// </summary>
+        /// <param name="moniker">Conference abbreviation.</param>
+        /// <returns>Available conference from our database.</returns>
+        /// <response code="200">Returns the requested conference.</response>
+        /// <remarks>
+        /// Sample request (this request list an specific conference.) \
+        /// GET /api/camps/DWX2020
+        /// </remarks>
+        [HttpGet("{moniker}")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Produces("application/vnd.marvin.camp.friendly.hateoas+json")]
+        [RequestHeaderMatchesMediaType("Accept", "application/vnd.marvin.camp.friendly.hateoas+json")]
+        public async Task<ActionResult<CampFriendlyModel>> GetCampWithFriendlyName(string moniker)
         {
             try
             {
@@ -69,7 +115,11 @@ namespace AspRestApiWorkshop.Controllers
                     return NotFound();
                 }
 
-                return CreateLinksForCamp(_mapper.Map<CampModel>(result));
+                var campWithLinks = CreateLinksForCamp(_mapper.Map<CampModel>(result));
+                var campFriendly = _mapper.Map<CampFriendlyModel>(result);
+                campFriendly.Links = campWithLinks.Links;
+
+                return campFriendly;
             }
             catch (Exception)
             {
@@ -98,8 +148,46 @@ namespace AspRestApiWorkshop.Controllers
         }
 
         [HttpPost]
-        //[ApiConventionMethod(typeof(CustomConventions), nameof(CustomConventions.Insert))]
+        [Produces("application/json")]
+        [RequestHeaderMatchesMediaType("Content-Type", "application/json")]
         public async Task<ActionResult<CampModel>> Insert(CampModel campModel)
+        {
+            try
+            {
+                var existingCamp = await _campRepository.GetCampAsync(campModel.Moniker);
+                if (existingCamp != null)
+                {
+                    return BadRequest("Moniker is in Use");
+                }
+
+                var location = _linkGenerator.GetPathByAction("GetCamp", "Camps", new { moniker = campModel.Moniker });
+
+                if (string.IsNullOrWhiteSpace(location))
+                {
+                    return BadRequest("Could not use current moniker");
+                }
+
+                var camp = _mapper.Map<Camp>(campModel);
+                _campRepository.Add(camp);
+
+                if (await _campRepository.SaveChangesAsync())
+                {
+                    return Created(location, _mapper.Map<CampModel>(camp));
+                }
+            }
+            catch (Exception)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, "Database failure");
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost]
+        [Produces("application/vnd.marvin.simplecamp+json")]
+        [RequestHeaderMatchesMediaType("Content-Type", "application/vnd.marvin.simplecamp+json")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public async Task<ActionResult<CampModel>> InsertSimpleCamp(CampModelForSimpleCreation campModel)
         {
             try
             {

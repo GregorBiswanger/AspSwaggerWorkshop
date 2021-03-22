@@ -14,7 +14,8 @@ namespace AspRestApiWorkshop
         public static void Insert(
             [ApiConventionNameMatch(ApiConventionNameMatchBehavior.Any)]
             [ApiConventionTypeMatch(ApiConventionTypeMatchBehavior.Any)]
-            object model) { }
+            object model)
+        { }
     }
 }
 

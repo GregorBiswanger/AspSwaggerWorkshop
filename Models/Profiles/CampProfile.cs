@@ -12,6 +12,15 @@ namespace AspRestApiWorkshop.Models.Profiles
                 memberOptions => memberOptions.MapFrom(camp => camp.Location.VenueName))
                 .ReverseMap();
 
+            CreateMap<Camp, CampFriendlyModel>()
+                .ForMember(campModel => campModel.NameWithMoniker,
+                memberOptions => memberOptions.MapFrom(camp => $"{camp.Name} ({camp.Moniker})"))
+                .ForMember(campModel => campModel.Venue,
+                memberOptions => memberOptions.MapFrom(camp => camp.Location.VenueName))
+                .ReverseMap();
+
+            CreateMap<Camp, CampModelForSimpleCreation>().ReverseMap();
+
             CreateMap<Talk, TalkModel>()
                 .ReverseMap()
                 .ForMember(talk => talk.Camp, opt => opt.Ignore())
