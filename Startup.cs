@@ -1,5 +1,7 @@
+using AspRestApiWorkshop.Authentication;
 using AspRestApiWorkshop.OperationFilters;
 using CoreCodeCamp.Data;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -40,6 +43,9 @@ namespace AspRestApiWorkshop
                 jsonFormatter.SupportedMediaTypes.Add("application/vnd.marvin.hateoas+json");
 
             }).AddXmlDataContractSerializerFormatters();
+
+            services.AddAuthentication("Basic")
+                .AddScheme<AuthenticationSchemeOptions, BasicAuthenticationHandler>("Basic", null);
 
             services.AddVersionedApiExplorer(options =>
             {
@@ -80,6 +86,24 @@ namespace AspRestApiWorkshop
                     });
                 }
 
+                setupAction.AddSecurityDefinition("basicAuth", new OpenApiSecurityScheme()
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "basic",
+                    Description = "Input your username and password to access this API"
+                });
+
+                setupAction.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "basicAuth" }
+                        }, new List<string>() }
+                });
+
                 setupAction.OperationFilter<GetCampOperationFilter>();
                 setupAction.OperationFilter<CreateCampOperationFilter>();
 
@@ -112,6 +136,10 @@ namespace AspRestApiWorkshop
             });
 
             app.UseRouting();
+
+            app.UseAuthentication();
+
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
