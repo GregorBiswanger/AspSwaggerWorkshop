@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace AspRestApiWorkshop.Controllers
 {
-    [Route("api/camps/{moniker}/[controller]")]
+    [Route("api/v{version:apiVersion}/camps/{moniker}/[controller]")]
     [ApiController]
     public class TalksController : ControllerBase
     {

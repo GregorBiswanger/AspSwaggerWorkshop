@@ -14,15 +14,15 @@ namespace AspRestApiWorkshop.Controllers
 {
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
-    [ApiVersion("1.0")]
+    [ApiVersion("2.0")]
     [ApiConventionType(typeof(CustomConventions))]
-    public class CampsController : ControllerBase
+    public class Camps2Controller : ControllerBase
     {
         private readonly ICampRepository _campRepository;
         private readonly IMapper _mapper;
         private readonly LinkGenerator _linkGenerator;
 
-        public CampsController(ICampRepository campRepository, IMapper mapper, LinkGenerator linkGenerator)
+        public Camps2Controller(ICampRepository campRepository, IMapper mapper, LinkGenerator linkGenerator)
         {
             _campRepository = campRepository;
             _mapper = mapper;
@@ -35,14 +35,20 @@ namespace AspRestApiWorkshop.Controllers
         /// <param name="includeTalks">Talks should also be displayed.</param>
         /// <returns>All available conferences from our database.</returns>
         [HttpGet]
-        public async Task<ActionResult<CampModel[]>> GetCamps(bool includeTalks = false)
+        public async Task<IActionResult> GetCamps(bool includeTalks = false)
         {
             try
             {
                 var results = await _campRepository.GetAllCampsAsync(includeTalks);
                 CampModel[] campModels = _mapper.Map<CampModel[]>(results);
 
-                return campModels.Select(camp => CreateLinksForCamp(camp)).ToArray();
+                var result = new
+                {
+                    Count = campModels.Count(),
+                    Results = campModels.Select(camp => CreateLinksForCamp(camp)).ToArray()
+                };
+
+                return Ok(result);
             }
             catch (Exception)
             {

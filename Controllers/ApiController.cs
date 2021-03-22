@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Routing;
 
 namespace AspRestApiWorkshop.Controllers
 {
-    [Route("api/")]
+    [Route("api/v{version:apiVersion}/")]
     [ApiController]
     public class ApiController : ControllerBase
     {

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Configuration;
 
 namespace AspRestApiWorkshop.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
     public class OperationsController : ControllerBase
     {

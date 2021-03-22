@@ -2,10 +2,10 @@ using AspRestApiWorkshop.OperationFilters;
 using CoreCodeCamp.Data;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -41,25 +41,44 @@ namespace AspRestApiWorkshop
 
             }).AddXmlDataContractSerializerFormatters();
 
+            services.AddVersionedApiExplorer(options =>
+            {
+                options.GroupNameFormat = "'v'VV";
+                options.SubstituteApiVersionInUrl = true;
+            });
+
+            services.AddApiVersioning(options =>
+            {
+                options.AssumeDefaultVersionWhenUnspecified = true;
+                options.DefaultApiVersion = new ApiVersion(1, 0);
+                options.ReportApiVersions = true;
+                options.ApiVersionReader = new UrlSegmentApiVersionReader();
+            });
+
             services.AddSwaggerGen(setupAction =>
             {
-                setupAction.SwaggerDoc("CampsApiSpecification", new OpenApiInfo
+                var provider = services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
+
+                foreach (var description in provider.ApiVersionDescriptions)
                 {
-                    Title = "Camps API",
-                    Version = "1",
-                    Description = "Das ist unsere super coole API vom Workshop",
-                    Contact = new OpenApiContact
+                    setupAction.SwaggerDoc(description.GroupName, new OpenApiInfo
                     {
-                        Name = "Gregor Biswanger",
-                        Email = "gregor.biswanger@web-enliven.de",
-                        Url = new Uri("https://twitter.com/BFreakout")
-                    },
-                    License = new OpenApiLicense
-                    {
-                        Name = "MIT License",
-                        Url = new Uri("https://opensource.org/licenses/MIT")
-                    }
-                });
+                        Title = "Camps API",
+                        Version = description.ApiVersion.ToString(),
+                        Description = "Das ist unsere super coole API vom Workshop",
+                        Contact = new OpenApiContact
+                        {
+                            Name = "Gregor Biswanger",
+                            Email = "gregor.biswanger@web-enliven.de",
+                            Url = new Uri("https://twitter.com/BFreakout")
+                        },
+                        License = new OpenApiLicense
+                        {
+                            Name = "MIT License",
+                            Url = new Uri("https://opensource.org/licenses/MIT")
+                        }
+                    });
+                }
 
                 setupAction.OperationFilter<GetCampOperationFilter>();
                 setupAction.OperationFilter<CreateCampOperationFilter>();
@@ -70,7 +89,7 @@ namespace AspRestApiWorkshop
             });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IApiVersionDescriptionProvider provider)
         {
             if (env.IsDevelopment())
             {
@@ -83,7 +102,12 @@ namespace AspRestApiWorkshop
 
             app.UseSwaggerUI(setupAction => 
             {
-                setupAction.SwaggerEndpoint("/swagger/CampsApiSpecification/swagger.json", "Camps API");
+                foreach (var description in provider.ApiVersionDescriptions)
+                {
+                    setupAction.SwaggerEndpoint($"../swagger/{description.GroupName}/swagger.json",
+                        description.GroupName.ToUpperInvariant());
+                }
+
                 setupAction.RoutePrefix = "";
             });
 
@@ -96,6 +120,9 @@ namespace AspRestApiWorkshop
         }
     }
 }
+
+
+
 
 
 
