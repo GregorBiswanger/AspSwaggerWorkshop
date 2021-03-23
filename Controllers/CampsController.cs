@@ -59,8 +59,8 @@ namespace AspRestApiWorkshop.Controllers
         /// <returns>Available conference from our database.</returns>
         /// <response code="200">Returns the requested conference.</response>
         /// <remarks>
-        /// Sample request (this request list an specific conference.) \
-        /// GET /api/camps/DWX2020
+        /// Sample request (this request list an specific **conference**.)  
+        /// `GET /api/camps/DWX2020`
         /// </remarks>
         [HttpGet("{moniker}")]
         [Produces("application/json", "application/vnd.marvin.hateoas+json")]
@@ -150,6 +150,27 @@ namespace AspRestApiWorkshop.Controllers
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="campModel"></param>
+        /// <returns></returns>
+        /// <remarks>
+        /// You can also save a **simple** data set.  
+        ///   
+        /// ```POST /api/camps/ HTTP/1.1
+        /// Host: localhost:5001
+        /// Content-Type: application/vnd.marvin.simplecamp+json
+        /// Content-Length: 131
+        /// 
+        /// {
+        ///     "name": "Super Cool Conf 2023",
+        ///     "moniker": "SCC2023",
+        ///     "eventDate": "2021-03-22T15:50:31.785Z",
+        ///     "length": 2
+        /// }
+        /// 
+        /// </remarks>
         [HttpPost]
         [Produces("application/json")]
         [RequestHeaderMatchesMediaType("Content-Type", "application/json")]

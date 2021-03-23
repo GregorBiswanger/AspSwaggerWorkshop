@@ -126,6 +126,11 @@ namespace AspRestApiWorkshop
 
             app.UseSwaggerUI(setupAction => 
             {
+                setupAction.InjectStylesheet("/assets/custom-ui.css");
+                //setupAction.IndexStream = ()
+                //        => GetType().Assembly
+                //        .GetManifestResourceStream("AspRestApiWorkshop.EmbeddedAssets.index.html");
+
                 foreach (var description in provider.ApiVersionDescriptions)
                 {
                     setupAction.SwaggerEndpoint($"../swagger/{description.GroupName}/swagger.json",
@@ -133,7 +138,15 @@ namespace AspRestApiWorkshop
                 }
 
                 setupAction.RoutePrefix = "";
+
+                setupAction.DefaultModelExpandDepth(2);
+                setupAction.DefaultModelRendering(Swashbuckle.AspNetCore.SwaggerUI.ModelRendering.Model);
+                setupAction.DocExpansion(Swashbuckle.AspNetCore.SwaggerUI.DocExpansion.None);
+                setupAction.EnableDeepLinking();
+                setupAction.DisplayOperationId();
             });
+
+            app.UseStaticFiles();
 
             app.UseRouting();
 
