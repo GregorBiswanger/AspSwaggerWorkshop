@@ -28,9 +28,9 @@ namespace CoreCodeCamp.Data
         .HasData(new 
         {
             CampId = 1,
-            Moniker = "DWX2020",
-            Name = "Developer Week 20",
-            EventDate = new DateTime(2020, 06, 29),
+            Moniker = "BASTA2022",
+            Name = "BASTA! Spring 2022",
+            EventDate = new DateTime(2022, 02, 21),
             LocationId = 1,
             Length = 1
         });
@@ -39,11 +39,11 @@ namespace CoreCodeCamp.Data
         .HasData(new 
         {
           LocationId = 1,
-          VenueName = "Nürnberg Convention Center NCC Ost",
-          Address1 = "Messezentrum",
-          CityTown = "Nürnberg",
-          StateProvince = "BY",
-          PostalCode = "90471",
+          VenueName = "MARRIOTT HOTEL",
+          Address1 = "Hamburger Allee 2",
+          CityTown = "Frankfurt",
+          StateProvince = "HE",
+          PostalCode = "60486",
           Country = "Germany"
         });
 
